@@ -3,14 +3,17 @@ import React from "react";
 import "./App.css";
 
 function App() {
-  const [imageFromServer, setImageFromServer] = React.useState<string | null>(null);
-  const [progressMessage, setProgressMessage] = React.useState<string>("Não iniciado.");
+  const [imageFromServer, setImageFromServer] = React.useState<string | null>(
+    null
+  );
+  const [progressMessage, setProgressMessage] =
+    React.useState<string>("Não iniciado.");
   const [webSocket, setWebSocket] = React.useState<WebSocket | null>(null);
   const [videoFile, setVideoFile] = React.useState<Blob | null>(null);
 
   React.useEffect(() => {
     console.log("connecting to web socket");
-    const socket = new WebSocket(`ws://whatsapp-message-automation-production.up.railway.app/`);
+    const socket = new WebSocket(`ws://localhost:3000/api/v1`);
 
     setWebSocket(socket);
 
@@ -36,7 +39,11 @@ function App() {
     };
   }, []);
 
-  const displayImage = imageFromServer ? <img src={imageFromServer} /> : <span>No image yet</span>;
+  const displayImage = imageFromServer ? (
+    <img src={imageFromServer} />
+  ) : (
+    <span>No image yet</span>
+  );
 
   function handleStartProcess() {
     webSocket?.send("iniciar");

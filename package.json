@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "bun run --hot ./src/server/index.ts & vite ",
     "server": "bun run --hot ./src/server/index.ts",
     "build": "bun install && bun run build",
     "start": "bun ./src/server/index.ts",

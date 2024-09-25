@@ -1,7 +1,6 @@
 import puppeteer from "puppeteer";
 import os from "os";
 import path from "path";
-import Bun from "bun";
 
 function delay(ms: number) {
   return new Promise((resolve) => {
@@ -11,7 +10,10 @@ function delay(ms: number) {
 
 const textToSend = `Sou Policial Militar há 19 anos, trabalhando durante 13 anos no 24° Batalhão de Diadema ( ABC Paulista) , 2 anos no 50° Batalhão do interior ( São Roque e Mairinque) , e em Sorocaba no policiamento comunitário com motos, também por alguns anos, realizamos um trabalho forte e com muito comprometimento no combate a criminalidade e também na área social ajudando centenas de pessoas em situação de vulnerabilidade, pela região do Éden, Cajuru, Aparecidinha, Vitória Régia, Alpes de Sorocaba, Laranjeiras, Paineiras, sendo este trabalho amplamente divulgado em minhas redes sociais, alcançando muitas pessoas de outras regiões de Sorocaba, ficando conhecido como " Cabo Lucas Fracazzi". Este reconhecimento nos fez conquistar vários amigos em todas as áreas, inclusive de políticos da nossa região, entre eles o nosso secretário de segurança pública do estado de São Paulo " Guilherme Derrite" , que em setembro de 2023 me convidou para compor sua equipe de confiança, onde assumi o cargo de assessor militar, permanecendo no cargo até participar de uma reunião com o presidente do partido político PL 🇧🇷 ( Danilo Balas) onde obtive apoio e aval do nosso secretário Guilherme Derrite, decidi partir para essa missão em Sorocaba, me colocando a disposição da população de bem , na posição de candidato a vereador em Sorocaba com o número 22190, onde vamos lutar por segurança pública de qualidade, promovendo uma parceria entre o município e Estado com fiscalizações diárias e combate aos Pancadões, Pertubações de sossego e tráfico de drogas, vamos lutar por melhores condições na saúde, realizando fiscalizações nas UPAS e UBS de Sorocaba, e também vamos trabalhar forte na área social, trazendo Parcerias e investimentos em uma área tão esquecida em Sorocaba, principalmente com as crianças especiais e com deficiências físicas e intelectuais, atuaremos principalmente na zona norte pelos bairros Éden, Cajuru, Aparecidinha, Paineiras, Laranjeiras, vitória régia, Alpes de Sorocaba, onde trabalhei por alguns anos e conheço de perto as dificuldades da população local, porém nunca esquecendo das demais regiões de Sorocaba, que a mim confiarem os seus votos, pois serei vereador de Sorocaba ajudando a todos que realizarem contato com o Cabo Lucas Fracazzi durante um possível mandato.`;
 
-const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: string } }>({
+const server = Bun.serve<{
+  username: string;
+  video: { buffer: Buffer[]; path: string };
+}>({
   async fetch(req, server) {
     console.log("incoming");
     const success = server.upgrade(req);
@@ -52,6 +54,7 @@ const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: st
       // the server re-broadcasts incoming messages to everyone
       if (message === "iniciar") {
         const browser = await puppeteer.launch({
+          args: ["--no-sandbox"],
           timeout: 1 * 60 * 100, // 1 minute,
         });
 
@@ -94,10 +97,14 @@ const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: st
 
         let qrCodeFound = false;
 
-        await page.waitForSelector('canvas[aria-label="Scan this QR code to link a device!"]').then(() => {
-          console.log("QR code has appeared");
-          qrCodeFound = true;
-        });
+        await page
+          .waitForSelector(
+            'canvas[aria-label="Scan this QR code to link a device!"]'
+          )
+          .then(() => {
+            console.log("QR code has appeared");
+            qrCodeFound = true;
+          });
 
         await page.screenshot().then((data) => {
           server.publish("progress", data);
@@ -107,9 +114,12 @@ const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: st
           for (let i = 0; qrCodeFound; i++) {
             await delay(5000);
             await page
-              .waitForSelector('canvas[aria-label="Scan this QR code to link a device!"]', {
-                timeout: 200,
-              })
+              .waitForSelector(
+                'canvas[aria-label="Scan this QR code to link a device!"]',
+                {
+                  timeout: 200,
+                }
+              )
               .then(() => {
                 console.log("QR code still in screen.");
                 qrCodeFound = true;
@@ -171,7 +181,9 @@ const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: st
 
             await delay(delayBetweenActions);
 
-            const elementHandle = await page.$("input[accept='image/*,video/mp4,video/3gpp,video/quicktime']");
+            const elementHandle = await page.$(
+              "input[accept='image/*,video/mp4,video/3gpp,video/quicktime']"
+            );
             await elementHandle?.uploadFile(ws.data.video.path);
 
             await page.waitForSelector("video").then(async () => {
