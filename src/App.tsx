@@ -13,7 +13,7 @@ function App() {
 
   React.useEffect(() => {
     console.log("connecting to web socket");
-    const socket = new WebSocket(`ws://localhost:3000/api/v1`);
+    const socket = new WebSocket(`ws://localhost:3000`);
 
     setWebSocket(socket);
 

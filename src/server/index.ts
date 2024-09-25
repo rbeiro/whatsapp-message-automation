@@ -54,6 +54,7 @@ const server = Bun.serve<{
       // the server re-broadcasts incoming messages to everyone
       if (message === "iniciar") {
         const browser = await puppeteer.launch({
+          headless: false,
           args: ["--no-sandbox"],
           timeout: 1 * 60 * 100, // 1 minute,
         });
@@ -96,6 +97,10 @@ const server = Bun.serve<{
         // }, videoBase64);
 
         let qrCodeFound = false;
+        console.log(await page.browser().version());
+        await page.screenshot({ fullPage: true }).then((data) => {
+          server.publish("progress", data);
+        });
 
         await page
           .waitForSelector(
@@ -104,9 +109,12 @@ const server = Bun.serve<{
           .then(() => {
             console.log("QR code has appeared");
             qrCodeFound = true;
-          });
+          })
+          .catch(() => console.log("Error"));
 
-        await page.screenshot().then((data) => {
+        console.log("antes do qr code");
+
+        await page.screenshot({ fullPage: true }).then((data) => {
           server.publish("progress", data);
         });
 
