@@ -118,26 +118,6 @@ const server = Bun.serve<{
 
         server.publish("progress", "Página do whatsapp aberta");
 
-        let newChatIconFound = false;
-
-        if (!newChatIconFound) {
-          console.log("inside IF newCHatinconFOund");
-          takeScreenshot();
-          while (!newChatIconFound) {
-            console.log("trying to find chat.");
-            await delay(2000);
-            takeScreenshot();
-            const newChatIcon = await page.$$("div[title='New chat']");
-
-            console.log(newChatIcon.length > 0);
-            if (newChatIcon.length > 0) {
-              console.log("chat found");
-              newChatIconFound = true;
-            }
-            console.log("chat missing");
-          }
-        }
-
         // const videoPath = ws.data.video.path;
         // const videoBuffer = fs.readFileSync(videoPath);
         // const videoBase64 = videoBuffer.toString("base64");
@@ -169,6 +149,8 @@ const server = Bun.serve<{
 
         let qrCodeFound = false;
 
+        let newChatIconFound = false;
+
         console.log(await page.browser().version());
         await page.screenshot({ fullPage: true }).then((data) => {
           server.publish("progress", data);
@@ -191,7 +173,7 @@ const server = Bun.serve<{
         });
 
         if (qrCodeFound) {
-          for (let i = 0; qrCodeFound; i++) {
+          while (qrCodeFound) {
             console.log("inside the qrCodeFound loop?");
             await delay(5000);
             await page
@@ -212,7 +194,26 @@ const server = Bun.serve<{
           }
         }
 
+        if (!newChatIconFound) {
+          console.log("inside IF newCHatinconFOund");
+          takeScreenshot();
+          while (!newChatIconFound) {
+            console.log("trying to find chat.");
+            await delay(2000);
+            takeScreenshot();
+            const newChatIcon = await page.$$("div[title='New chat']");
+
+            console.log(newChatIcon.length > 0);
+            if (newChatIcon.length > 0) {
+              console.log("chat found");
+              newChatIconFound = true;
+            }
+            console.log("chat missing");
+          }
+        }
+
         console.log(newChatIconFound);
+
         if (newChatIconFound) {
           await page.screenshot({ fullPage: true }).then((data) => {
             server.publish("progress", data);
