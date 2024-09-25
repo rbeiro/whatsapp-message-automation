@@ -13,9 +13,7 @@ function App() {
 
   React.useEffect(() => {
     console.log("connecting to web socket");
-    const socket = new WebSocket(
-      `ws://whatsapp-message-automation-production.up.railway.app`
-    );
+    const socket = new WebSocket(`ws://localhost:3000`);
 
     setWebSocket(socket);
 

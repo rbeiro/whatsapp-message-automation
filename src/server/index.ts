@@ -162,7 +162,7 @@ const server = Bun.serve<{
             console.log("QR code has appeared");
             qrCodeFound = true;
           })
-          .catch(() => console.log("Error"));
+          .catch((err) => console.log(err));
 
         console.log("antes do qr code");
 
