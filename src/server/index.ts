@@ -196,11 +196,11 @@ const server = Bun.serve<{
 
         if (!newChatIconFound) {
           console.log("inside IF newCHatinconFOund");
-          takeScreenshot();
+          await takeScreenshot();
           while (!newChatIconFound) {
             console.log("trying to find chat.");
             await delay(2000);
-            takeScreenshot();
+            await takeScreenshot();
             const newChatIcon = await page.$$("div[title='New chat']");
 
             console.log(newChatIcon.length > 0);
