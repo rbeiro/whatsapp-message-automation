@@ -190,7 +190,27 @@ const server = Bun.serve<{
           }
         }
 
-        if (!qrCodeFound) {
+        let newChatIconFound = false;
+
+        if (!newChatIconFound) {
+          for (let i = 0; qrCodeFound; i++) {
+            await delay(5000);
+            await page
+              .waitForSelector("div[title='New chat']", {
+                timeout: 0,
+              })
+              .then(() => {
+                console.log("Chat missing");
+                newChatIconFound = true;
+              })
+              .catch(() => {
+                console.log("Chat appeared");
+                newChatIconFound = false;
+              });
+          }
+        }
+
+        if (newChatIconFound) {
           await startAutomation();
         }
 
