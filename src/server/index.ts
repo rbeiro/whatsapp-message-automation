@@ -192,6 +192,10 @@ const server = Bun.serve<{
         }
 
         async function startAutomation() {
+          console.log("begin of StartAutomation");
+          await page.screenshot({ fullPage: true }).then((data) => {
+            server.publish("progress", data);
+          });
           await page.evaluate((textToSend) => {
             const blob = new Blob([textToSend], { type: "text/plain" });
             const item = new ClipboardItem({ "text/plain": blob });
@@ -205,10 +209,16 @@ const server = Bun.serve<{
               });
           }, textToSend);
 
+          console.log("before sendImageAndVideo");
+
           sendImageAndVideo();
         }
+        await page.screenshot({ fullPage: true }).then((data) => {
+          server.publish("progress", data);
+        });
 
         async function sendImageAndVideo() {
+          console.log("start of SendImageAndVideo");
           for (let i = 0; i < 5; i++) {
             await page.locator("div[title='New chat']").click();
             await delay(delayBetweenActions);
