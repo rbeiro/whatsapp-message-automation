@@ -118,6 +118,26 @@ const server = Bun.serve<{
 
         server.publish("progress", "Página do whatsapp aberta");
 
+        let newChatIconFound = false;
+
+        if (!newChatIconFound) {
+          console.log("inside IF newCHatinconFOund");
+          takeScreenshot();
+          while (!newChatIconFound) {
+            console.log("trying to find chat.");
+            await delay(2000);
+            takeScreenshot();
+            const newChatIcon = await page.$$("div[title='New chat']");
+
+            console.log(newChatIcon.length > 0);
+            if (newChatIcon.length > 0) {
+              console.log("chat found");
+              newChatIconFound = true;
+            }
+            console.log("chat missing");
+          }
+        }
+
         // const videoPath = ws.data.video.path;
         // const videoBuffer = fs.readFileSync(videoPath);
         // const videoBase64 = videoBuffer.toString("base64");
@@ -189,26 +209,6 @@ const server = Bun.serve<{
                 console.log("QR dissapeared");
                 qrCodeFound = false;
               });
-          }
-        }
-
-        let newChatIconFound = false;
-
-        if (!newChatIconFound) {
-          console.log("inside IF newCHatinconFOund");
-          takeScreenshot();
-          while (!newChatIconFound) {
-            console.log("trying to find chat.");
-            await delay(2000);
-            takeScreenshot();
-            const newChatIcon = await page.$$("div[title='New chat']");
-
-            console.log(newChatIcon.length > 0);
-            if (newChatIcon.length > 0) {
-              console.log("chat found");
-              newChatIconFound = true;
-            }
-            console.log("chat missing");
           }
         }
 
