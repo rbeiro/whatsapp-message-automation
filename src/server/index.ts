@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
 import os from "os";
 import path from "path";
+import Bun from "bun";
 
 function delay(ms: number) {
   return new Promise((resolve) => {
