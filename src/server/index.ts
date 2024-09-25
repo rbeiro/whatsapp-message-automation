@@ -54,8 +54,8 @@ const server = Bun.serve<{
       // the server re-broadcasts incoming messages to everyone
       if (message === "iniciar") {
         const browser = await puppeteer.launch({
-          headless: false,
-          args: ["--no-sandbox"],
+          args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          ignoreDefaultArgs: ["--disable-extensions"],
           timeout: 1 * 60 * 100, // 1 minute,
         });
 
