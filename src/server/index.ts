@@ -211,6 +211,9 @@ const server = Bun.serve<{
         }
 
         if (newChatIconFound) {
+          await page.screenshot({ fullPage: true }).then((data) => {
+            server.publish("progress", data);
+          });
           await startAutomation();
         }
 
