@@ -196,9 +196,14 @@ const server = Bun.serve<{
 
         if (!newChatIconFound) {
           console.log("inside IF newCHatinconFOund");
+          takeScreenshot();
           while (!newChatIconFound) {
+            console.log("trying to find chat.");
             await delay(2000);
+            takeScreenshot();
             const newChatIcon = await page.$$("div[title='New chat']");
+
+            console.log(newChatIcon.length > 0);
             if (newChatIcon.length > 0) {
               console.log("chat found");
               newChatIconFound = true;
@@ -285,6 +290,11 @@ const server = Bun.serve<{
           }
         }
 
+        async function takeScreenshot() {
+          await page.screenshot({ fullPage: true }).then((data) => {
+            server.publish("progress", data);
+          });
+        }
         // await delay(delayBetweenActions);
 
         // const messages = await page.$$eval(".message-out", (elements) => {
