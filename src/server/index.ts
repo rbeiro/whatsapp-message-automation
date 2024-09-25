@@ -52,7 +52,6 @@ const server = Bun.serve<{ username: string; video: { buffer: Buffer[]; path: st
       // the server re-broadcasts incoming messages to everyone
       if (message === "iniciar") {
         const browser = await puppeteer.launch({
-          headless: false,
           timeout: 1 * 60 * 100, // 1 minute,
         });
 
