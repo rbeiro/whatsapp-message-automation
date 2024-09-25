@@ -196,26 +196,18 @@ const server = Bun.serve<{
 
         if (!newChatIconFound) {
           console.log("inside IF newCHatinconFOund");
-          for (let i = 0; !newChatIconFound; i++) {
-            console.log("inside the loop?");
+          while (!newChatIconFound) {
             await delay(2000);
-            await page
-              .evaluate("div[title='New chat']", {
-                timeout: 0,
-              })
-              .then(() => {
-                console.log("Chat missing");
-                newChatIconFound = false;
-              })
-              .catch(() => {
-                console.log("Chat appeared");
-                newChatIconFound = true;
-              });
+            const newChatIcon = await page.$$("div[title='New chat']");
+            if (newChatIcon.length > 0) {
+              console.log("chat found");
+              newChatIconFound = true;
+            }
+            console.log("chat missing");
           }
         }
 
         console.log(newChatIconFound);
-
         if (newChatIconFound) {
           await page.screenshot({ fullPage: true }).then((data) => {
             server.publish("progress", data);
