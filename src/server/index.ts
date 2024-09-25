@@ -185,10 +185,13 @@ const server = Bun.serve<{
               })
               .catch(() => {
                 console.log("QR dissapeared");
-                startAutomation();
                 qrCodeFound = false;
               });
           }
+        }
+
+        if (!qrCodeFound) {
+          await startAutomation();
         }
 
         async function startAutomation() {
