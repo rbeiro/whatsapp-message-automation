@@ -54,6 +54,7 @@ const server = Bun.serve<{
       // the server re-broadcasts incoming messages to everyone
       if (message === "iniciar") {
         const browser = await puppeteer.launch({
+          headless: false,
           args: [
             "--no-sandbox",
             "--disable-setuid-sandbox",
@@ -148,6 +149,7 @@ const server = Bun.serve<{
         // }, videoBase64);
 
         let qrCodeFound = false;
+
         console.log(await page.browser().version());
         await page.screenshot({ fullPage: true }).then((data) => {
           server.publish("progress", data);
@@ -171,6 +173,7 @@ const server = Bun.serve<{
 
         if (qrCodeFound) {
           for (let i = 0; qrCodeFound; i++) {
+            console.log("inside the qrCodeFound loop?");
             await delay(5000);
             await page
               .waitForSelector(
@@ -193,22 +196,26 @@ const server = Bun.serve<{
         let newChatIconFound = false;
 
         if (!newChatIconFound) {
-          for (let i = 0; qrCodeFound; i++) {
-            await delay(5000);
+          console.log("inside IF newCHatinconFOund");
+          for (let i = 0; !newChatIconFound; i++) {
+            console.log("inside the loop?");
+            await delay(2000);
             await page
-              .waitForSelector("div[title='New chat']", {
+              .evaluate("div[title='New chat']", {
                 timeout: 0,
               })
               .then(() => {
                 console.log("Chat missing");
-                newChatIconFound = true;
+                newChatIconFound = false;
               })
               .catch(() => {
                 console.log("Chat appeared");
-                newChatIconFound = false;
+                newChatIconFound = true;
               });
           }
         }
+
+        console.log(newChatIconFound);
 
         if (newChatIconFound) {
           await page.screenshot({ fullPage: true }).then((data) => {
