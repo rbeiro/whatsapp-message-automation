@@ -32,7 +32,7 @@ export async function attachAndSendVideo({
     page: currentPage,
     selector: 'img[alt="Preview"]',
     selectorName: "uploaded video",
-    numberOfTries: 60,
+    numberOfTries: 30,
     iterationDelay: 500,
   });
 

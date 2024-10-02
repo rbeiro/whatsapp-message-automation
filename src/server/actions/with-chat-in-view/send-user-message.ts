@@ -139,7 +139,7 @@ export const sendUserMessage: (
 
       let isVideoLastMessage = false;
 
-      while (!isVideoLastMessage) {
+      for (let i = 0; !isVideoLastMessage || i <= 25; i++) {
         console.log("checking if video was sent");
         await delay(500);
         const thing =
@@ -149,6 +149,15 @@ export const sendUserMessage: (
 
         return Promise.resolve(true);
       }
+
+      return Promise.reject({
+        code: 500,
+        reload: true,
+        message: {
+          content: `Última mensagem não é um vídeo, reiniciando. ❌`,
+          id: messageId,
+        },
+      } as MessageError);
     });
     console.log("isVideoLastMessage: ", isVideoLastMessage);
   }
