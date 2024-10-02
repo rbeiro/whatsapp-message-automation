@@ -5,16 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "bun run --hot ./src/server/index.ts & vite ",
-    "server": "bun run --hot ./src/server/index.ts",
+    "front": "vite",
+    "server": "bun run --hot ./src/server/app.ts --tagprocess",
     "build": "bun install && bun run build",
     "start": "bun ./src/server/index.ts",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ngrok/ngrok": "^1.4.1",
     "bun": "^1.1.29",
     "express": "^4.21.0",
-    "puppeteer": "^23.4.0",
+    "ngrok": "^5.0.0-beta.2",
+    "puppeteer": "^23.4.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "ws": "^8.18.0"

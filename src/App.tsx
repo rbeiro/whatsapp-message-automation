@@ -13,9 +13,7 @@ function App() {
 
   React.useEffect(() => {
     console.log("connecting to web socket");
-    const socket = new WebSocket(
-      `ws://whatsapp-message-automation-production.up.railway.app`
-    );
+    const socket = new WebSocket(`ws://anemone-loved-mentally.ngrok-free.app`);
 
     setWebSocket(socket);
 
@@ -94,11 +92,31 @@ function App() {
   return (
     <>
       <button onClick={handleStartProcess}>Iniciar</button>
+
       <h1>{progressMessage}</h1>
 
-      <form onSubmit={handleSubmit}>
-        <input type="file" accept="video/*" onChange={handleFileChange} />
-        <button type="submit">Upload Video</button>
+      <form onSubmit={handleSubmit} style={{ display: "flex" }}>
+        <label
+          htmlFor="videoToSend"
+          className="choose-file-button"
+          data-with-file={Boolean(videoFile)}
+        >
+          {
+            {
+              true: videoFile?.name,
+              false: "Nenhuma aquivo selecionado",
+            }[Boolean(videoFile).toString()]
+          }
+        </label>
+
+        <input
+          id="videoToSend"
+          type="file"
+          accept="*"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+        />
+        <button type="submit">Enviar</button>
       </form>
 
       {displayImage}
