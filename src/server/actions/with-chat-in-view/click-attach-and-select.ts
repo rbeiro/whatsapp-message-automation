@@ -1,4 +1,5 @@
 import { ElementHandle, Page } from "puppeteer";
+import { delay } from "../../utils";
 
 type AttachButtonOptions = "contact" | "video" | "image";
 
@@ -10,10 +11,12 @@ type AttachButtonReturn<T> = T extends "contact" | "image"
 
 export async function clickAttachAndSelect<T extends AttachButtonOptions>(
   page: Page,
-  whichButton: T
+  whichButton: T,
+  delayBetweenActions: number = 0
 ): Promise<AttachButtonReturn<T>> {
   try {
     await page.locator("div[title='Attach']").click();
+    await delay(delayBetweenActions);
 
     console.log("clicked on Attach");
 
@@ -30,6 +33,7 @@ export async function clickAttachAndSelect<T extends AttachButtonOptions>(
     }
 
     if (whichButton === "video") {
+      await delay(delayBetweenActions);
       await page
         .waitForSelector(
           "input[accept='image/*,video/mp4,video/3gpp,video/quicktime']"

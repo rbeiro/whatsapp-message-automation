@@ -1,7 +1,10 @@
 import { Page } from "puppeteer";
 import { delay } from "../utils";
 
-export const waitWhatsappQrcodeRead = async (page: Page) => {
+export const waitWhatsappQrcodeRead = async (
+  page: Page,
+  errorCallback?: () => Promise<void>
+) => {
   console.log("begin of waitWhatsappQrcodeRead");
   let qrCodeInScreen = true;
 
@@ -24,6 +27,9 @@ export const waitWhatsappQrcodeRead = async (page: Page) => {
     }
 
     console.log("Still waiting for QR code read... ❌");
+    if (errorCallback) {
+      await errorCallback();
+    }
   }
 };
 

@@ -34,6 +34,6 @@ export const checkSelectorUntilExists = async ({
     }
 
     if (numberOfTries) i++;
-    console.log(`Still waiting for ${selectorName} icon... ❌`);
+    console.log(`Still waiting for ${selectorName}... ❌`);
   }
 };

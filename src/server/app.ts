@@ -210,6 +210,7 @@ const server = Bun.serve<WebsocketData>({
 
         try {
           //console.log(ws.data.video.path);
+          const awaitTimeForSendingMessages = 1000;
 
           let context = await browser.createBrowserContext();
 
@@ -241,7 +242,7 @@ const server = Bun.serve<WebsocketData>({
               data: {
                 contact: {
                   name: "Gabriel",
-                  number: "15991689366",
+                  number: "15997007710",
                 },
                 attachedContact: ws.data.contactToAttach,
                 image: undefined,
@@ -250,25 +251,48 @@ const server = Bun.serve<WebsocketData>({
               },
             });
 
-            await delay(5000);
+            await delay(15000);
             await takeAndPublishScreenshot();
 
             //Set page to offline to send messages.
-            await activePage.setOfflineMode(true);
 
             //Loop through all contacts
             for (let c = 1; c <= ws.data.contacts.length; c++) {
               //Every x amount of iterations set page to online so whatsapp can send the messages
               if (c % 250 === 0) {
-                await activePage.setOfflineMode(false);
+                const awaitAmount =
+                  (c - interationNumberWhenRestarted) *
+                  awaitTimeForSendingMessages; // 1 second per message
+                interationNumberWhenRestarted = c;
+                console.log(
+                  "Esperando ",
+                  awaitAmount / awaitTimeForSendingMessages,
+                  " segundos"
+                );
                 console.log("ESPERANDO ENVIO DO WHATSAPP...");
-                await delay(25 * 1000); // 25 seconds
+                await delay(awaitAmount); // 25 seconds
                 console.log("Espera acabou continuando...");
-                await activePage.setOfflineMode(true);
               }
 
               //Every x amount of iterations close the page so disk usage is not through the roof as freezes the server.
+              let sendText = true;
+
               if (c % 1000 === 0 && c !== 4000) {
+                const awaitAmount =
+                  (c - interationNumberWhenRestarted) *
+                  awaitTimeForSendingMessages; // 1 second per message
+
+                interationNumberWhenRestarted = c;
+
+                console.log(
+                  "Esperando ",
+                  awaitAmount / awaitTimeForSendingMessages,
+                  " segundos"
+                );
+                console.log("ESPERANDO ENVIO DO WHATSAPP...");
+                await delay(awaitAmount); // 25 seconds
+                console.log("Espera acabou continuando...");
+
                 await disconnectFromWhatsApp(activePage);
                 await context.close();
 
@@ -279,13 +303,23 @@ const server = Bun.serve<WebsocketData>({
 
                 console.log("beofre findWhatsAppQrCodeAndWaitForRead");
 
+                await activePage.goto("https://web.whatsapp.com/");
+
                 await findWhatsappQrcode(activePage);
-                await waitWhatsappQrcodeRead(activePage);
+
+                await takeAndPublishScreenshot();
+                await waitWhatsappQrcodeRead(
+                  activePage,
+                  takeAndPublishScreenshot
+                );
 
                 await addUserInputToClipboard({
                   page: activePage,
                   text: ws.data.text,
                 });
+
+                await checkIfChatPageLoaded(activePage);
+
                 wave++;
               }
 
@@ -305,6 +339,7 @@ const server = Bun.serve<WebsocketData>({
                     status: "sending",
                   })
                 );
+
                 await sendUserMessage({
                   currentPage: activePage,
                   data: {
@@ -314,7 +349,7 @@ const server = Bun.serve<WebsocketData>({
                     },
                     attachedContact: ws.data.contactToAttach,
                     image: undefined,
-                    text: ws.data.text,
+                    text: sendText ? ws.data.text : undefined,
                     videoPath: ws.data.video.path,
                   },
                   options: {
@@ -322,6 +357,7 @@ const server = Bun.serve<WebsocketData>({
                   },
                 })
                   .then((success) => {
+                    sendText = true;
                     server.publish(
                       "progress",
                       JSON.stringify({
@@ -354,34 +390,47 @@ const server = Bun.serve<WebsocketData>({
                     //TODO: Handle other cases where message wasn't send successfully
 
                     currentMessageId = error.message.id;
+
+                    if (!error.reload) {
+                      e = 3;
+                    }
                     if (error.reload) {
+                      sendText = false;
                       const awaitAmount =
-                        (c - interationNumberWhenRestarted) * 1000; // 1 second per message
+                        (c - interationNumberWhenRestarted) *
+                        awaitTimeForSendingMessages; // 1 second per message
+
+                      interationNumberWhenRestarted = c;
+
+                      console.log(
+                        "Esperando ",
+                        awaitAmount / awaitTimeForSendingMessages,
+                        " segundos"
+                      );
 
                       console.log(
                         "trying to reload page -------------------------------------"
                       );
                       //Delete last text message since video wasn't sent
-                      const allMessagesOut = await activePage.$$(
-                        "div.message-out"
-                      );
+                      // const allMessagesOut = await activePage.$$(
+                      //   "div.message-out"
+                      // );
 
-                      const lastMessage =
-                        allMessagesOut[allMessagesOut.length - 1];
+                      // const lastMessage =
+                      //   allMessagesOut[allMessagesOut.length - 1];
 
-                      await lastMessage.hover();
+                      // await lastMessage.hover();
 
-                      await activePage
-                        .locator("div[aria-label='Context menu']")
-                        .click();
-                      await activePage
-                        .locator("div[aria-label='Delete']")
-                        .click();
+                      // await activePage
+                      //   .locator("div[aria-label='Context menu']")
+                      //   .click();
+                      // await activePage
+                      //   .locator("div[aria-label='Delete']")
+                      //   .click();
 
-                      await activePage.locator("button.x14v0smp").click();
+                      // await activePage.locator("button.x14v0smp").click();
 
                       //Connect page to internet so previous messages can be sent.
-                      activePage.setOfflineMode(false);
                       //Delete cookies and localStorage so language is correct.
 
                       await activePage.deleteCookie({
@@ -414,7 +463,6 @@ const server = Bun.serve<WebsocketData>({
                           await activePage.evaluate(() => {
                             window.localStorage.removeItem("WALangPhonePref");
                           });
-                          activePage.setOfflineMode(true);
                         });
                     }
                   });
@@ -460,9 +508,7 @@ const server = Bun.serve<WebsocketData>({
                 //         console.log(
                 //           "++++++++++++++++++++++++++++++++= PAGE RELOAD ++++++++++++++++++++++++++++++++++++++++++="
                 //         );
-                //         activePage.setOfflineMode(false);
                 //         await delay(5000);
-                //         activePage.setOfflineMode(true);
                 //         await activePage.deleteCookie({
                 //           name: "wa_web_lang_pref",
                 //         });
@@ -474,8 +520,6 @@ const server = Bun.serve<WebsocketData>({
 
               console.log("Out of inside loop");
             }
-
-            await activePage.setOfflineMode(false);
 
             console.log("BEFORE FINAL SCREENSHOT");
 
@@ -702,14 +746,14 @@ const server = Bun.serve<WebsocketData>({
             await takeAndPublishScreenshot();
 
             //Wait for the use to read the Whatsapp QRcode
-            await waitWhatsappQrcodeRead(page);
+            await waitWhatsappQrcodeRead(page, takeAndPublishScreenshot);
 
             //Check if the chat page is loaded by searching for the 'New Chat icon' and send screenshot to the user.
             await checkIfChatPageLoaded(page);
 
             await takeAndPublishScreenshot();
 
-            await delay(15000);
+            await delay(5000);
           }
 
           // async function checkIfChatsPageLoaded(page: Page) {

@@ -2,19 +2,25 @@ import { Page } from "puppeteer";
 import { clickAttachAndSelect } from "./click-attach-and-select";
 //import { delay } from "../../utils";
 import { checkSelectorUntilExists } from "../../utils/selector-exists";
+import { delay } from "../../utils";
+import { generateRandomNumber } from "../../utils/random-number-generator";
 
 type Args = {
   currentPage: Page;
   videoPath: string;
+  delayBetweenActions?: number;
 };
 
 export async function attachAndSendVideo({
   currentPage,
   videoPath,
+  delayBetweenActions = 0,
 }: Args): Promise<void> {
   console.log("begin of attachAndSendVideo");
   const elemntHandle = await clickAttachAndSelect(currentPage, "video");
+
   console.log("after clickAttachAndSelect");
+  await delay(delayBetweenActions);
 
   await elemntHandle?.uploadFile(videoPath).catch((err) => {
     console.log("Video upload error ❌");
@@ -28,6 +34,8 @@ export async function attachAndSendVideo({
   });
   //This is necessary because the .catch with uploadFile doesn't alwats work
   //TODO: check if it's bad code or what
+
+  await delay(delayBetweenActions);
   const isVideoReady = await checkSelectorUntilExists({
     page: currentPage,
     selector: 'img[alt="Preview"]',
@@ -75,9 +83,13 @@ export async function attachAndSendVideo({
     console.log("video sent! - attachAndSendVideo ✅");
 
     //await delay(100);
+    await delay(delayBetweenActions);
     await currentPage.waitForSelector(
       "div[aria-label='Send'][aria-disabled='false']"
     );
+
+    await delay(200 * generateRandomNumber(1, 3));
+
     await currentPage
       .locator("div[aria-label='Send'][aria-disabled='false']")
       .click();

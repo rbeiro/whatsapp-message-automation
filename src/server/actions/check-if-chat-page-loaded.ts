@@ -3,6 +3,9 @@ import { delay } from "../utils";
 
 export async function checkIfChatPageLoaded(page: Page) {
   console.log("begin of checkIfChatPageLoaded");
+
+  await page.waitForNetworkIdle();
+  await page.setOfflineMode(false);
   let isNewChatIconInDisplay = false;
 
   while (!isNewChatIconInDisplay) {
